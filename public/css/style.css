@@ -97,3 +97,41 @@ body{
      height:400px;
      width:80vh; 
     }
+.search-form {
+  display: flex;
+} 
+
+/* ================= NAVBAR SEARCH UI ================= */
+
+.search-btn{
+  background-color: #fe424d !important;
+  color: #fff !important;
+  border-radius: 25px;
+  padding: 0.4rem 1rem;
+  white-space: nowrap;
+}
+
+.search-btn:hover{
+  background-color: #fe424d !important;
+  color: #fff !important;
+}
+
+.search-inp{
+  border-radius: 25px;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.search-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 📱 Mobile Responsive */
+@media (max-width: 768px){
+  .search-form{
+    flex-direction: column !important;
+    width: 100%;
+  }
+}
