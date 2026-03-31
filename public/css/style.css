@@ -149,3 +149,13 @@ body{
 .star-empty {
   color: #e4e5e9;
 }
+
+.star {
+  font-size: 25px;
+  cursor: pointer;
+  color: gray;
+}
+
+.star.active {
+  color: gold;
+}

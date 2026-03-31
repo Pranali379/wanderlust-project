@@ -1,10 +1,9 @@
+// Bootstrap validation (KEEP THIS)
 (() => {
   'use strict'
 
-  // Fetch all the forms we want to apply custom Bootstrap validation styles to
   const forms = document.querySelectorAll('.needs-validation')
 
-  // Loop over them and prevent submission
   Array.from(forms).forEach(form => {
     form.addEventListener('submit', event => {
       if (!form.checkValidity()) {
@@ -15,4 +14,29 @@
       form.classList.add('was-validated')
     }, false)
   })
-})()
+})();
+
+
+// ⭐ Star Rating Logic (ADD THIS BELOW)
+const stars = document.querySelectorAll(".star");
+const ratingInput = document.getElementById("rating-input");
+
+if (stars.length > 0) {
+  stars.forEach((star, index) => {
+    star.addEventListener("click", () => {
+      let value = index + 1;
+
+      ratingInput.value = value;
+
+      stars.forEach(s => {
+        s.classList.remove("fa-solid", "active");
+        s.classList.add("fa-regular");
+      });
+
+      for (let i = 0; i < value; i++) {
+        stars[i].classList.remove("fa-regular");
+        stars[i].classList.add("fa-solid", "active");
+      }
+    });
+  });
+}
