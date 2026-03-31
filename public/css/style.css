@@ -135,3 +135,17 @@ body{
     width: 100%;
   }
 }
+
+/* ⭐ Star Rating */
+.stars {
+  display: flex;
+  gap: 4px;
+}
+
+.star-filled {
+  color: #ffc107;
+}
+
+.star-empty {
+  color: #e4e5e9;
+}
