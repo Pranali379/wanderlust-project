@@ -1,11 +1,19 @@
 const Listing = require("../models/listing");
 const Review = require("../models/review");
-module.exports.createReview = async(req,res) => {
-   console.log(req.params.id);
+
+module.exports.createReview = async (req, res) => {
+   console.log("USER:", req.user);
+
+   if (!req.user) {
+       req.flash("error", "You must be logged in to add a review");
+       return res.redirect("/login");
+   }
+
    let listing = await Listing.findById(req.params.id);
+
    let newReview = new Review(req.body.review);
    newReview.author = req.user._id;
-   
+
    listing.reviews.push(newReview);
 
    await newReview.save();

@@ -3,12 +3,14 @@ const Review = require("./models/review");
 
 // ================= LOGIN CHECK =================
 module.exports.isLoggedIn = (req, res, next) => {
-  if (!req.isAuthenticated()) {
-    req.session.redirectUrl = req.originalUrl;
-    req.flash("error", "You must be logged in!");
-    return res.redirect("/login");
-  }
-  next();
+    console.log("User:", req.user); // DEBUG
+    console.log("Auth:", req.isAuthenticated()); // DEBUG
+
+    if (!req.isAuthenticated()) {
+        req.session.redirectUrl = req.originalUrl; // save where user wanted to go
+        return res.redirect("/login");
+    }
+    next();
 };
 
 // ================= SAVE REDIRECT URL =================
