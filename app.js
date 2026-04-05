@@ -21,9 +21,8 @@ mongoose.connect(MONGO_URL)
 
 // ------------------ ROUTES ------------------
 app.get("/", (req, res) => {
-    res.send("Server is running...");
+    res.redirect("/listings");
 });
-
 // ------------------ SERVER ------------------
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
