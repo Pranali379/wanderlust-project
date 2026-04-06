@@ -1,58 +1,107 @@
-require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const express = require("express");
+const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
 
-const app = express();
+const User = require("./models/user.js");
 
-// ------------------ MODEL ------------------
-const Listing = require("./models/listing"); // make sure this file exists
-
-// ------------------ PORT ------------------
-const PORT = process.env.PORT || 3000;
+// ROUTES
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
 
 // ------------------ DB URL ------------------
-const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.ATLASDB_URL;
 
 // ------------------ DB CONNECTION ------------------
-mongoose.connect(MONGO_URL)
-    .then(() => console.log("MongoDB connected"))
-    .catch((err) => console.log("MongoDB connection error:", err));
+async function main() {
+  await mongoose.connect(dbUrl);
+}
+main()
+  .then(() => console.log("Connected to DB"))
+  .catch((err) => console.log(err));
 
-// ------------------ MIDDLEWARE ------------------
+// ------------------ VIEW ENGINE ------------------
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.engine("ejs", ejsMate);
 
+// ------------------ MIDDLEWARE ------------------
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
+
+// ------------------ SESSION STORE ------------------
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: "mysupersecretcode",
+  },
+  touchAfter: 24 * 3600,
+});
+
+store.on("error", (err) => {
+  console.log("ERROR in MONGO SESSION STORE", err);
+});
+
+// ------------------ SESSION CONFIG ------------------
+const sessionOptions = {
+  store,
+  secret: "mysupersecretcode",
+  resave: false,
+  saveUninitialized: true,
+};
+
+app.use(session(sessionOptions));
+app.use(flash());
+
+// ------------------ PASSPORT ------------------
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ------------------ FLASH + USER GLOBAL ------------------
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
 
 // ------------------ ROUTES ------------------
 
-// Root route → redirect to listings
+// ROOT
 app.get("/", (req, res) => {
-    res.redirect("/listings");
+  res.redirect("/listings");
 });
 
-// Show all listings
-app.get("/listings", async (req, res) => {
-    try {
-        const allListings = await Listing.find({});
-        res.render("listings/index", { allListings });
-    } catch (err) {
-        console.log(err);
-        res.status(500).send("Error fetching listings");
-    }
-});
+// ROUTERS
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
 
 // ------------------ ERROR HANDLING ------------------
-
-// 404 route
 app.use((req, res) => {
-    res.status(404).send("Page Not Found");
+  res.status(404).send("Page Not Found");
 });
 
 // ------------------ SERVER ------------------
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
