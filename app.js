@@ -40,7 +40,13 @@ app.engine("ejs", ejsMate);
 // ------------------ MIDDLEWARE ------------------
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"), {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => {
+    res.set("Cache-Control", "no-store");
+  }
+}));
 
 // ------------------ SESSION STORE ------------------
 const store = MongoStore.create({
