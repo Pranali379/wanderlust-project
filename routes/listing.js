@@ -26,6 +26,12 @@ router
 // ================= NEW ROUTE =================
 router.get("/new", isLoggedIn, listingController.renderNewForm);
 
+// SEARCH ROUTE
+router.get("/search", wrapAsync(listingController.searchListings));
+
+// CATEGORY FILTER ROUTE
+router.get("/category/:type", wrapAsync(listingController.filterCategory));
+
 // ================= SHOW, UPDATE, DELETE =================
 router
   .route("/:id")
