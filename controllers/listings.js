@@ -89,3 +89,34 @@ module.exports.destroyListing = async (req, res) => {
         req.flash("success", "Listing Deleted Successfully!");
         res.redirect("/listings");
 };
+
+// SEARCH
+module.exports.searchListings = async (req, res) => {
+    const query = req.query.q;
+
+    if (!query) {
+        return res.redirect("/listings");
+    }
+
+    const allListings = await Listing.find({
+        $or: [
+            { title: { $regex: query, $options: "i" } },
+            { location: { $regex: query, $options: "i" } }
+        ]
+    });
+
+    res.render("listings/index", { allListings });
+};
+
+// CATEGORY FILTER
+module.exports.filterCategory = async (req, res) => {
+    let { type } = req.params;
+
+    type = type.toLowerCase();
+
+    const allListings = await Listing.find({
+        category: type
+    });
+
+    res.render("listings/index", { allListings });
+};
